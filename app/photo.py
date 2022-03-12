@@ -6,11 +6,13 @@ import os
 class PhotoPanel(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
+        # 获取整个显示屏的高度和宽度
+        size = wx.DisplaySize()
         # 图片宽度和高度
         self.img_height = None
         self.img_width = None
-        self.height = 320
-        self.width = 480
+        self.width = size[0]
+        self.height = size[1]
         # 图片坐标地址
         self.img_path = os.path.join(os.getcwd(), "background")
         self.photos = None
@@ -61,10 +63,6 @@ class PhotoPanel(wx.Panel):
 
     # 设置背景图片
     def set_background(self, filename):
-        # 获取整个显示屏的高度和宽度
-        # size = wx.DisplaySize()
-        # self.width = size[0]
-        # self.height = size[1]
         # wx.Image是一个加载图像的函数wx.BITMAP_TYPE_ANY表示任意类型的图片
         img = wx.Image(filename, type=wx.BITMAP_TYPE_ANY)
         # 我们获取一下图片的高度和宽度(这个高度是根据我们屏幕的宽度算出来的，是为了让图片更好展示，避免拉伸)

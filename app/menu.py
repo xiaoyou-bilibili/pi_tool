@@ -77,16 +77,16 @@ class MainPanel(wx.Panel):
 
         self.text_hour.SetFont(wx.Font(36, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "宋体"))
 
-        box_time.Add(self.text_hour, 0, wx.ALL, 5)
+        box_time.Add(self.text_hour, 0, wx.ALIGN_BOTTOM | wx.RIGHT, 5)
 
         self.text_second = wx.StaticText(self, wx.ID_ANY, u"00", wx.DefaultPosition, wx.DefaultSize, 0)
         self.text_second.Wrap(-1)
 
         self.text_second.SetFont(
-            wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "宋体"))
-        self.text_second.SetForegroundColour(wx.Colour(255, 0, 128))
+            wx.Font(25, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, "宋体"))
+        self.text_second.SetForegroundColour(wx.Colour(26, 178, 228))
 
-        box_time.Add(self.text_second, 0, wx.ALL | wx.ALIGN_BOTTOM, 5)
+        box_time.Add(self.text_second, 0, wx.ALIGN_BOTTOM | wx.LEFT, 5)
 
         grid_top.Add(box_time, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
 
@@ -361,7 +361,6 @@ class MainPanel(wx.Panel):
 
     # 界面隐藏时触发
     def window_show(self, event):
-        print("显示界面")
         # 每秒显示时间
         self.timer.Start(1000)
         # 3s更新图片
@@ -371,7 +370,6 @@ class MainPanel(wx.Panel):
 
     # 界面显示时触发
     def windows_hide(self):
-        print("隐藏界面")
         # 停止计时器
         self.timer.Stop()
         self.timer_photo.Stop()
