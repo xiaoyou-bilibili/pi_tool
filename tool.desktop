@@ -1,0 +1,9 @@
+[Desktop Entry]
+
+Name=小工具
+Comment=个人专用小工具
+Exec=bash /home/pi/app/tool/run.sh
+Icon=/home/pi/app/tool/logo.png
+Terminal=true
+Type=Application
+Categories=Application;Development;

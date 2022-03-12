@@ -1,0 +1,3 @@
+wxPython~=4.1.1
+requests~=2.27.1
+nacos-sdk-python~=0.1.6
