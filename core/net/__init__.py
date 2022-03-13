@@ -63,3 +63,13 @@ def json_post_json(url, data, heads=None):
         return data.json()
     else:
         return {}
+
+
+# 获取二进制数据
+def get_row_data(url):
+    return requests.get(url, timeout=3).content
+
+
+if __name__ == '__main__':
+    data = get_row_data("https://i0.hdslb.com/bfs/archive/1ebd4c2c1bc45e5f4cc814ee33d8dfe064650fd1.png")
+    print(data)

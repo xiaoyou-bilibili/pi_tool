@@ -6,9 +6,11 @@ import tool.bilibili as bilibili
 import tool.youtube as youtube
 import tool.xiaomi as xiaomi
 import tool.electricity as electricity
+import tool.photo as photo
 import wx
 import wx.xrc
-from app.photo import PhotoPanel
+from app.core.photo import PhotoPanel
+from app.core.video import VideoPanel
 
 week_map = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
@@ -30,41 +32,9 @@ class MainPanel(wx.Panel):
                  name=wx.EmptyString):
         wx.Panel.__init__(self, parent, id=id, pos=pos, size=size, style=style, name=name)
 
-        self.ui_init()
-
-        # 全局变量信息
-        self.img_path = os.path.join(os.getcwd(), "background")
-        self.photos = os.listdir(self.img_path)
-        self.photo_index = 1
-
-        # 数据更新
-        self.update_electricity()
-        self.update_fans_and_play(None)
-        self.show_photo(os.path.join(self.img_path, self.photos[0]))
-
-        # 底部按钮点击事件
-        self.btn_right.Bind(wx.EVT_LEFT_DOWN, self.light_switch)
-        self.btn_switch.Bind(wx.EVT_LEFT_DOWN, self.switch_switch)
-        self.img_photo.Bind(wx.EVT_LEFT_DOWN, self.app_photo)
-        self.btn_close.Bind(wx.EVT_LEFT_DOWN, self.close_window)
-        self.btn_off.Bind(wx.EVT_LEFT_DOWN, self.power_off)
-
-        # 各种定时器
-        # 1s更新一下时间
-        self.timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.show_time, self.timer)
-        # 每20分钟更新一下B站粉丝数
-        self.timer_video_data = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.update_fans_and_play, self.timer_video_data)
-        # 3s更新一下壁纸
-        self.timer_photo = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.on_timer_photo, self.timer_photo)
-        self.window_show(None)
-        # 修改背景颜色
-        self.SetBackgroundColour(wx.Colour(255, 255, 255))
-
-    # 初始化UI界面
-    def ui_init(self):
+        self.timer_photo = None
+        self.timer_video_data = None
+        self.timer = None
         self.MainWindow = wx.BoxSizer(wx.VERTICAL)
 
         grid_top = wx.GridSizer(1, 2, 0, 0)
@@ -187,7 +157,7 @@ class MainPanel(wx.Panel):
 
         box_temperature.Add(self.text_temperature, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
-        grid_tmp.Add(box_temperature, 1, wx.ALIGN_CENTER_HORIZONTAL | wx.ALIGN_CENTER_VERTICAL, 5)
+        grid_tmp.Add(box_temperature, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
         box_humidity = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -205,7 +175,7 @@ class MainPanel(wx.Panel):
 
         box_humidity.Add(self.text_humidity, 0, wx.ALL | wx.ALIGN_CENTER_VERTICAL, 5)
 
-        grid_tmp.Add(box_humidity, 1, wx.ALIGN_CENTER_VERTICAL | wx.ALIGN_CENTER_HORIZONTAL, 5)
+        grid_tmp.Add(box_humidity, 1, wx.ALIGN_CENTER_VERTICAL, 5)
 
         grid_tmp_electricity.Add(grid_tmp, 1, wx.EXPAND, 5)
 
@@ -284,6 +254,37 @@ class MainPanel(wx.Panel):
         self.SetSizer(self.MainWindow)
         self.Layout()
 
+        self.ui_init()
+
+    # 初始化UI界面
+    def ui_init(self):
+        # 数据更新
+        self.update_electricity()
+        self.update_fans_and_play(None)
+        self.on_timer_photo(None)
+
+        # 底部按钮点击事件
+        self.btn_right.Bind(wx.EVT_LEFT_DOWN, self.light_switch)
+        self.btn_switch.Bind(wx.EVT_LEFT_DOWN, self.switch_switch)
+        self.img_photo.Bind(wx.EVT_LEFT_DOWN, self.app_photo)
+        self.btn_close.Bind(wx.EVT_LEFT_DOWN, self.close_window)
+        self.btn_off.Bind(wx.EVT_LEFT_DOWN, self.power_off)
+        self.text_bili_fan.Bind(wx.EVT_LEFT_DOWN, self.app_bili_data)
+
+        # 各种定时器
+        # 1s更新一下时间
+        self.timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.show_time, self.timer)
+        # 每20分钟更新一下B站粉丝数
+        self.timer_video_data = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.update_fans_and_play, self.timer_video_data)
+        # 3s更新一下壁纸
+        self.timer_photo = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.on_timer_photo, self.timer_photo)
+        self.window_show(None)
+        # 修改背景颜色
+        self.SetBackgroundColour(wx.Colour(255, 255, 255))
+
     # 时间显示功能
     def show_time(self, evt):
         #  获取当前时间
@@ -295,23 +296,9 @@ class MainPanel(wx.Panel):
         self.text_temperature.SetLabelText("%s℃" % sensor["temperature"])
         self.text_humidity.SetLabelText("%s%%" % sensor["humidity"])
 
-    def on_timer_photo(self, evt):
-        # 遍历完图片后重新开始遍历
-        if self.photo_index >= len(self.photos):
-            self.photo_index = 0
-        # 显示背景图片
-        self.show_photo(os.path.join(self.img_path, self.photos[self.photo_index]))
-        self.photo_index += 1
-
     # 壁纸显示功能
-    def show_photo(self, filename):
-        width = 230
-        img = wx.Image(filename, type=wx.BITMAP_TYPE_ANY)
-        # 我们获取一下图片的高度和宽度(这个高度是根据我们屏幕的宽度算出来的，是为了让图片更好展示，避免拉伸)
-        img_width = img.GetWidth()
-        img_height = int(img.GetHeight() * (width / img_width))
-        # 对图片进行缩放，方便我们全屏显示
-        self.img_photo.SetBitmap(img.Scale(width, img_height).ConvertToBitmap())
+    def on_timer_photo(self, evt):
+        self.img_photo.SetBitmap(photo.get_img_bitmap(230))
 
     # 灯光切换
     def light_switch(self, e):
@@ -352,19 +339,27 @@ class MainPanel(wx.Panel):
 
     # 打开图库
     def app_photo(self, event):
-        panel = PhotoPanel(self)
+        self.open_panel(PhotoPanel(self))
+
+    # 打开图库
+    def app_bili_data(self, event):
+        self.open_panel(VideoPanel(self))
+
+    # 打开新界面
+    def open_panel(self, panel):
         panel.Show()
         panel.SetSize(wx.Size(self.GetSize()))
+        # 设置背景颜色，不设置会把主界面也显示出来
+        panel.SetBackgroundColour(wx.Colour(255, 255, 255))
         # 当panel销毁时触发回调
         panel.Bind(wx.EVT_CLOSE, self.window_show)
-        self.windows_hide()
 
     # 界面隐藏时触发
     def window_show(self, event):
         # 每秒显示时间
         self.timer.Start(1000)
-        # 3s更新图片
-        self.timer_photo.Start(3000)
+        # 10s更新图片
+        self.timer_photo.Start(10000)
         # 20分钟更新B站数据
         self.timer_video_data.Start(1000 * 60 * 20)
 
