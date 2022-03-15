@@ -347,12 +347,12 @@ class MainPanel(wx.Panel):
 
     # 打开新界面
     def open_panel(self, panel):
-        panel.Show()
         panel.SetSize(wx.Size(self.GetSize()))
-        # 设置背景颜色，不设置会把主界面也显示出来
-        panel.SetBackgroundColour(wx.Colour(255, 255, 255))
+        panel.Show()
         # 当panel销毁时触发回调
         panel.Bind(wx.EVT_CLOSE, self.window_show)
+        # 隐藏我们的界面
+        self.windows_hide()
 
     # 界面隐藏时触发
     def window_show(self, event):
@@ -362,6 +362,7 @@ class MainPanel(wx.Panel):
         self.timer_photo.Start(10000)
         # 20分钟更新B站数据
         self.timer_video_data.Start(1000 * 60 * 20)
+        # self.timer_video_data.Start(1000*5)
 
     # 界面显示时触发
     def windows_hide(self):

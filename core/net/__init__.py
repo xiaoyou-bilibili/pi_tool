@@ -17,50 +17,51 @@ def set_map_data(old, new):
 
 # 原始json下载
 def get(url):
-    data = requests.get(url)
-    return data.text
+    response = requests.get(url)
+    return response.text
 
 
 # 获取json形式的数据
 def get_json(url, cookie=None, heads=None, proxies=None):
-    global head
+    new_head = head.copy()
     if cookie is not None:
-        head["cookie"] = cookie
-    head = set_map_data(head, heads)
-    data = requests.get(url, headers=head, proxies=proxies)
-    if data.status_code == requests.codes.ok:
-        return data.json()
+        new_head["cookie"] = cookie
+    new_head = set_map_data(new_head, heads)
+    response = requests.get(url, headers=new_head, proxies=proxies)
+    if response.status_code == requests.codes.ok:
+        return response.json()
     else:
+        print(response.content)
         return {}
 
 
 # post请求获取JSON数据
-def post_json(url, data, cookie=None, heads=None):
-    global head
+def post_json(url, post_data, cookie=None, heads=None):
+    new_head = head.copy()
     if cookie is not None:
-        head["cookie"] = cookie
-    head = set_map_data(head, heads)
-    data = requests.post(url, data, headers=head)
-    if data.status_code == requests.codes.ok:
-        return data.json()
+        new_head["cookie"] = cookie
+    new_head = set_map_data(new_head, heads)
+    response = requests.post(url, post_data, headers=new_head)
+    if response.status_code == requests.codes.ok:
+        return response.json()
     else:
         return {}
 
 
 # post的多文件上传
-def form_post(url, data, file):
-    r = requests.post(url, data=data, files=file)
+def form_post(url, form_data, file):
+    r = requests.post(url, data=form_data, files=file)
     return r.text
 
 
 # 发送json格式数据
-def json_post_json(url, data, heads=None):
-    global head
-    head = set_map_data(head, heads)
+def json_post_json(url, post_data, heads=None):
+    new_head = head.copy()
+    new_head = set_map_data(new_head, heads)
     head["Content-Type"] = "application/json"
-    data = requests.post(url, data=json.dumps(data), headers=head)
-    if data.status_code == requests.codes.ok:
-        return data.json()
+    post_data = requests.post(url, data=json.dumps(post_data), headers=new_head)
+    if post_data.status_code == requests.codes.ok:
+        return post_data.json()
     else:
         return {}
 

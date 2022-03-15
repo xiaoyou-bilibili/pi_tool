@@ -39,6 +39,7 @@ class VideoPanel(wx.Panel):
         # 先使用一个空的来进行占位，避免显示错乱
         self.add_video("")
         self.Layout()
+        self.SetBackgroundColour(wx.Colour(255, 255, 255))
 
         self.total = 0
         self.now = 1

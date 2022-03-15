@@ -51,9 +51,9 @@ class PhotoPanel(wx.Panel):
 
     # 设置背景图片
     def set_background(self):
-        # 对图片进行缩放，方便我们全屏显示
-        self.bmp = photo.get_img_bitmap(self.width)
         # 设置一下背景颜色，让多余部分显示为黑色
         self.SetBackgroundColour(wx.Colour(0, 0, 0))
+        # 对图片进行缩放，方便我们全屏显示
+        self.bmp = photo.get_img_bitmap(self.width)
         # 刷新图片
         self.Refresh()
