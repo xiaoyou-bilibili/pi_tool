@@ -1,5 +1,6 @@
 import requests
 import json
+from lxml import etree
 
 head = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -69,6 +70,14 @@ def json_post_json(url, post_data, heads=None):
 # 获取二进制数据
 def get_row_data(url):
     return requests.get(url, timeout=3).content
+
+
+def get_xpath(url, new_head={}, proxies=None):
+    global head
+    new_head["user-agent"] = head["user-agent"]
+    r = requests.get(url, headers=new_head, proxies=proxies)
+    # print(r.text)
+    return etree.HTML(r.text)
 
 
 if __name__ == '__main__':

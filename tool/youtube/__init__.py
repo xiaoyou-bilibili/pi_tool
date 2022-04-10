@@ -6,9 +6,7 @@ channelID = "UCdHNS1d3fTx-m69tKsr7n3w"
 
 def get_youtube_fan():
     key = config.get_config("youtub_token")
-    print(key)
     url = "https://youtube.googleapis.com/youtube/v3/channels?part=statistics&id=%s&key=%s" % (channelID, key)
-    print(url)
     data = net.get_json(url, proxies={"https": "http://192.168.1.1:7890"})
     res = {"view": "0", "fan": "0"}
     if "items" in data and len(data["items"][0]) >= 1 and "statistics" in data["items"][0]:
