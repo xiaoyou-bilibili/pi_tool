@@ -1,5 +1,8 @@
 ## 树莓派小工具
 B站视频介绍：https://www.bilibili.com/video/BV1eS4y1D7cs
+
+YouTube介绍：https://youtu.be/GTo-YL8So9U
+
 ### 界面展示
 #### 主界面
 ![](.readme_images/924dfde8.png)
